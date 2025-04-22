@@ -56,7 +56,7 @@ const tourSchema = new mongoose.Schema(
                 message: "##-PriceDiscount-Must-Be-Less-Than-Price-##",
             },
         },
-        summery: {
+        summary: {
             type: String,
             trim: true,
             required: [true, "##-A-Tour-Must-Have-A-Summery-##"],
