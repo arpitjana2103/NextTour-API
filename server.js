@@ -6,7 +6,7 @@ dotenv.config({ path: "./config.env" });
 const DBLOC = process.env.DATABASE_LOCAL;
 const PORT = process.env.PORT || 6600;
 
-const server = app.listen(PORT, function () {
+app.listen(PORT, function () {
     console.log("⌛ Connecting to Database...");
 
     // Connect with database
@@ -21,3 +21,6 @@ const server = app.listen(PORT, function () {
             console.log(err);
         });
 });
+
+const x = 0;
+x = 5;
