@@ -1,13 +1,13 @@
 const express = require("express");
+const tourRouter = require("./routes/tour.route");
 
 const app = express();
+
+// Req-Body parser Middleware :
+// ‍[ note : Parses incoming JSON requests into JavaScript objects ]
 app.use(express.json());
 
-app.get("/", function (req, res) {
-    res.status(200).json({
-        message: "A new Hello from Server",
-        app: "NextTours",
-    });
-});
+// Router Middlewares
+app.use("/api/v1/tours", tourRouter);
 
 module.exports = app;

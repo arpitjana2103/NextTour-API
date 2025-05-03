@@ -21,6 +21,3 @@ app.listen(PORT, function () {
             console.log(err);
         });
 });
-
-const x = 0;
-x = 5;

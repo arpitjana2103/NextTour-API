@@ -109,7 +109,7 @@ const tourSchema = new mongoose.Schema(
     {
         toJSON: { virtuals: true },
         toOBJECT: { virtuals: true },
-    }
+    },
 );
 
 ////////////////////////////////////////
@@ -122,13 +122,13 @@ tourSchema.virtual("durationWeeks").get(function () {
 ////////////////////////////////////////
 // DOCUMENT MIDDLEWARE / HOOK //////////
 
-// runs before Model.prototype.save() and Model.create()
+// [ NOTE : runs before Model.prototype.save() and Model.create() ]
 tourSchema.pre("save", function (next) {
     this.slug = slugify(this.name, { lower: true });
     next();
 });
 
-// runs after Model.prototype.save() and Model.create()
+// [ NOTE : runs after Model.prototype.save() and Model.create() ]
 tourSchema.post("save", function (doc, next) {
     doc.__v = "Arpit Jana is Great";
     next();
