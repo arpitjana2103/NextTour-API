@@ -1,4 +1,5 @@
 const Tour = require("../models/tour.model");
+const QueryFeatures = require("../utils/QueryFeatures");
 const { catchAsyncErrors } = require("./error.controller");
 
 exports.createTour = catchAsyncErrors(async function (req, res, next) {
@@ -6,5 +7,23 @@ exports.createTour = catchAsyncErrors(async function (req, res, next) {
     return res.status(201).json({
         status: "success",
         data: { tour: newTour },
+    });
+});
+
+exports.getAllTours = catchAsyncErrors(async function (req, res, next) {
+    const mongooseQuery = Tour.find();
+    const queryFeatures = new QueryFeatures(mongooseQuery, req.query);
+    const query = queryFeatures
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate().mongooseQuery;
+
+    const tours = await query;
+
+    return res.status(200).json({
+        status: "success",
+        count: tours.length,
+        data: { tours: tours },
     });
 });
