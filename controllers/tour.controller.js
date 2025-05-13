@@ -36,3 +36,42 @@ exports.aliasTop5Cheap = catchAsyncErrors(async function (req, res, next) {
     });
     next();
 });
+
+exports.getTour = catchAsyncErrors(async function (req, res, next) {
+    const { id } = req.params;
+    const tour = await Tour.findById(id);
+
+    // if(!tour){}
+
+    return res.status(200).json({
+        status: "success",
+        tour: tour,
+    });
+});
+
+exports.updateTour = catchAsyncErrors(async function (req, res, next) {
+    const { id } = req.params;
+    const tour = await Tour.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
+    });
+
+    // if(!tour) {}
+
+    return res.status(200).json({
+        status: "success",
+        tour: tour,
+    });
+});
+
+exports.deleteTour = catchAsyncErrors(async function (req, res, next) {
+    const { id } = req.params;
+    const tour = await Tour.findByIdAndDelete(id);
+
+    // if(!tour){}
+
+    return res.status(204).json({
+        status: "success",
+        data: null,
+    });
+});
