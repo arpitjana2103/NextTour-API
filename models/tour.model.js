@@ -130,7 +130,25 @@ tourSchema.pre("save", function (next) {
 
 // [ NOTE : runs after Model.prototype.save() and Model.create() ]
 tourSchema.post("save", function (doc, next) {
-    doc.__v = "Arpit Jana is Great";
+    doc.__v = undefined;
+    next();
+});
+
+////////////////////////////////////////
+// QUERY MIDDLEWARE / HOOK /////////////
+
+// [ NOTE : runs before Model.find() but not for findOne() ]
+tourSchema.pre(/^find/, function (next) {
+    this.find({ secretTour: { $ne: true } });
+    this.start = Date.now();
+    next();
+});
+
+// [ NOTE : runs after Model.find() but not for findOne() ]
+tourSchema.post(/^find/, function (docs, next) {
+    console.log(`Query Took ${Date.now() - this.start} milliseconds!`);
+    // Access Docs
+    // console.log(docs)
     next();
 });
 
