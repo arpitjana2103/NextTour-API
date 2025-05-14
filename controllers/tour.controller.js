@@ -45,7 +45,7 @@ exports.getTour = catchAsyncErrors(async function (req, res, next) {
 
     return res.status(200).json({
         status: "success",
-        tour: tour,
+        data: { tour: tour },
     });
 });
 
@@ -60,7 +60,7 @@ exports.updateTour = catchAsyncErrors(async function (req, res, next) {
 
     return res.status(200).json({
         status: "success",
-        tour: tour,
+        data: { tour: tour },
     });
 });
 
@@ -75,3 +75,33 @@ exports.deleteTour = catchAsyncErrors(async function (req, res, next) {
         data: null,
     });
 });
+
+exports.getTourStats = async function (req, res) {
+    console.log("Hello from tour-stats");
+    const stats = await Tour.aggregate([
+        { $match: { ratingsAverage: { $gte: 4.5 } } },
+        {
+            $group: {
+                // _id: null
+                // _id: "$difficulty",
+                _id: { $toUpper: "$difficulty" },
+                numTours: { $sum: 1 },
+                numRatings: { $sum: "$ratingsQuantity" },
+                avgRating: { $avg: "$ratingsAverage" },
+                avgPrice: { $avg: "$price" },
+                minPrice: { $min: "$price" },
+                maxPrice: { $max: "$price" },
+            },
+        },
+        {
+            $sort: {
+                avgRating: -1,
+            },
+        },
+    ]);
+
+    return res.status(200).json({
+        status: "success",
+        data: { stats: stats },
+    });
+};
