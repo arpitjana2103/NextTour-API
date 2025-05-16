@@ -76,8 +76,7 @@ exports.deleteTour = catchAsyncErrors(async function (req, res, next) {
     });
 });
 
-exports.getTourStats = async function (req, res) {
-    console.log("Hello from tour-stats");
+exports.getTourStats = catchAsyncErrors(async function (req, res, next) {
     const stats = await Tour.aggregate([
         { $match: { ratingsAverage: { $gte: 4.5 } } },
         {
@@ -104,4 +103,43 @@ exports.getTourStats = async function (req, res) {
         status: "success",
         data: { stats: stats },
     });
-};
+});
+
+exports.getMonthlyPlan = catchAsyncErrors(async function (req, res, next) {
+    const { year } = req.params;
+    const plan = await Tour.aggregate([
+        { $unwind: "$startDates" },
+        {
+            $match: {
+                startDates: {
+                    $gte: new Date(`${year}-01-01`),
+                    $lte: new Date(`${year}-12-31`),
+                },
+            },
+        },
+        {
+            $group: {
+                _id: { $month: "$startDates" },
+                tourStartsCount: { $sum: 1 },
+                tours: { $push: "$name" },
+            },
+        },
+        {
+            $addFields: {
+                month: "$_id",
+            },
+        },
+        {
+            $unset: ["_id"],
+        },
+        {
+            $sort: { tourStartsCount: -1 },
+        },
+    ]);
+
+    return res.status(200).json({
+        status: "success",
+        info: 'month "1" represents month "January"',
+        data: { plan: plan },
+    });
+});
