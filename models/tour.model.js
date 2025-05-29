@@ -144,11 +144,19 @@ tourSchema.pre(/^find/, function (next) {
     next();
 });
 
-// [ NOTE : runs after Model.find() but not for findOne() ]
+// [ NOTE : runs after
+// Model.find(), Model.findOne(), Model.findOneAndDelete()
+// Model.findOneAndReplace(), Model.findOneAndUpdate() ]
 tourSchema.post(/^find/, function (docs, next) {
     console.log(`Query Took ${Date.now() - this.start} milliseconds!`);
     // Access Docs
     // console.log(docs)
+    next();
+});
+
+tourSchema.pre("aggregate", function (next) {
+    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+    // console.log(this.pipeline());
     next();
 });
 
