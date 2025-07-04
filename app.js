@@ -15,4 +15,12 @@ app.use(express.json());
 // Router Middlewares
 app.use("/api/v1/tours", tourRouter);
 
+// Handelling Unhandled Routes
+app.all("*", function (req, res, next) {
+    res.status(404).json({
+        status: "fail",
+        message: `Can't find ${req.originalUrl} on this server`,
+    });
+});
+
 module.exports = app;

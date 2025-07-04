@@ -51,6 +51,7 @@ const tourSchema = new mongoose.Schema(
             // [ Note : Only workd while creating new docs ...
             validate: {
                 validator: function (discount) {
+                    // [ Note : "this" only points to current doc on NEW document creating
                     return this.price > discount;
                 },
                 message: "##-PriceDiscount-Must-Be-Less-Than-Price-##",
@@ -139,7 +140,7 @@ tourSchema.post("save", function (doc, next) {
 
 // [ NOTE : runs before Model.find() but not for findOne() ]
 tourSchema.pre(/^find/, function (next) {
-    this.find({ secretTour: { $ne: true } });
+    // this.find({ secretTour: { $ne: true } });
     this.start = Date.now();
     next();
 });

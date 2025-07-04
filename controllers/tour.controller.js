@@ -78,7 +78,7 @@ exports.deleteTour = catchAsyncErrors(async function (req, res, next) {
 
 exports.getTourStats = catchAsyncErrors(async function (req, res, next) {
     const stats = await Tour.aggregate([
-        { $match: { ratingsAverage: { $gte: 4.5 } } },
+        { $match: { ratingsAverage: { $gte: 4.0 } } },
         {
             $group: {
                 // _id: null
