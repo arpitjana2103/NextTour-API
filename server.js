@@ -6,7 +6,7 @@ dotenv.config({ path: "./config.env" });
 const DBLOC = process.env.DATABASE_LOCAL;
 const PORT = process.env.PORT || 6600;
 
-app.listen(PORT, function () {
+const server = app.listen(PORT, function () {
     console.log("⌛ Connecting to Database...");
 
     // Connect with database
@@ -20,4 +20,14 @@ app.listen(PORT, function () {
             console.log("(ノಠ益ಠ)ノ Database Connection Failed.");
             console.log(err);
         });
+});
+
+// Handlling Unhandled Promise Rejections
+process.on("unhandledRejection", function (err) {
+    console.log("UNHUNDELED REJECTION :: SHUTTING DOWN THE SERVER");
+    console.log(err);
+    // Shutting down gracefully.
+    server.close(function () {
+        process.exit(1);
+    });
 });
