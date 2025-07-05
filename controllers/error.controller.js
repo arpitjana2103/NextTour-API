@@ -25,3 +25,10 @@ exports.AppError = class extends Error {
         */
     }
 };
+
+exports.globalErrorHandeller = function (err, req, res, next) {
+    return res.status(err.statusCode || 500).json({
+        status: err.status || "error",
+        message: err.message,
+    });
+};

@@ -1,6 +1,10 @@
 const express = require("express");
 const qs = require("qs");
 const tourRouter = require("./routes/tour.route");
+const {
+    globalErrorHandeller,
+    AppError,
+} = require("./controllers/error.controller");
 
 const app = express();
 
@@ -17,10 +21,12 @@ app.use("/api/v1/tours", tourRouter);
 
 // Handelling Unhandled Routes
 app.all("*", function (req, res, next) {
-    return res.status(404).json({
-        status: "fail",
-        message: `Can't find ${req.originalUrl} on this server`,
-    });
+    return next(
+        new AppError(`Can't find ${req.originalUrl} on this server!`, 404),
+    );
 });
+
+// Global Error Handelling Middleware
+app.use(globalErrorHandeller);
 
 module.exports = app;
