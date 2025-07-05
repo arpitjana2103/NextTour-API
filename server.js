@@ -2,6 +2,13 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const app = require("./app");
 
+// Handellling Uncaught Exceptions
+process.on("uncaughtException", function (err) {
+    console.log("UNHUNDELED EXCEPTION :: SHUTTING DOWN THE SERVER");
+    console.log(err);
+    process.exit(1);
+});
+
 dotenv.config({ path: "./config.env" });
 const DBLOC = process.env.DATABASE_LOCAL;
 const PORT = process.env.PORT || 6600;
