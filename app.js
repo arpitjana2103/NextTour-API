@@ -5,6 +5,7 @@ const {
     globalErrorHandeller,
     AppError,
 } = require("./controllers/error.controller");
+const userRouter = require("./routes/user.route");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Router Middlewares
 app.use("/api/v1/tours", tourRouter);
+app.use("/api/v1/users", userRouter);
 
 // Handelling Unhandled Routes
 app.all("*", function (req, res, next) {

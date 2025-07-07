@@ -1,4 +1,6 @@
 const { default: mongoose } = require("mongoose");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
 
 const validatePassword = function (password) {
     return (
@@ -60,3 +62,21 @@ const userSchema = new mongoose.Schema({
         select: false,
     },
 });
+
+////////////////////////////////////////
+// DOCUMENT MEDDLEWARE / HOOK //////////
+
+// runs before Model.prototype.save() and Model.create()
+userSchema.pre("save", async function (next) {
+    // Only run the Function if the password has been changes
+    // For Ex. ( if user is changing the email, no need to hash the password in that case)
+    if (!this.isModified("password")) return next();
+
+    // Hash Password
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined;
+    next();
+});
+
+const User = mongoose.model("User", userSchema);
+module.exports = User;

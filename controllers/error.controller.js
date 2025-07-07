@@ -32,6 +32,7 @@ exports.globalErrorHandeller = function (err, req, res, next) {
 
     if (process.env.NODE_ENV === "development") {
         return sendErrForDev(err, res);
+        // return sendErrForProd(err, res);
     }
 
     if (process.env.NODE_ENV === "production") {
@@ -43,6 +44,9 @@ exports.globalErrorHandeller = function (err, req, res, next) {
 //// Helper Functions for Error Handelling
 
 function sendErrForDev(err, res) {
+    if (err.name === "CastError") err.statusCode = 400;
+    if (err.code === 11000) err.statusCode = 400;
+    if (err.name === "ValidationError") err.statusCode = 400;
     return res.status(err.statusCode).json({
         status: err.status,
         message: err.message,
