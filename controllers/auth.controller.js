@@ -1,3 +1,4 @@
+const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const { catchAsyncErrors, AppError } = require("./error.controller");
 const User = require("../models/user.model");
@@ -18,12 +19,7 @@ const signAndSendToken = function (user, statusCode, res) {
         status: "success",
         token: token,
         data: {
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            user: user,
         },
     });
 };
@@ -50,10 +46,42 @@ exports.login = catchAsyncErrors(async function (req, res, next) {
     // [2] Check if User exists and Passwrod is correct
     const user = await User.findOne({ email: email }).select("+password");
 
-    if (!user || !(await user.varifyPassword(password, user.password))) {
+    if (!user || !(await user.verifyPassword(password, user.password))) {
         return next(new AppError("Incorrect Email or Password", 401));
     }
 
     // [3] If everything ok, send Token to client
     signAndSendToken(user, 200, res);
+});
+
+exports.protect = catchAsyncErrors(async function (req, res, next) {
+    // [1] Getting the Token
+    let token = req.headers.authorization;
+    if (token && token.startsWith("Bearer")) {
+        token = token.split(" ")[1];
+    }
+    if (!token) {
+        return next(new AppError("Please login to get access.", 401));
+    }
+
+    // [2] Verify token
+    const jwtSecretKey = process.env.JWT_SECRET;
+    const decoded = await promisify(jwt.verify)(token, jwtSecretKey);
+
+    // [3] Check if user still exists
+    // Ex. What if user has been deleated in the mean-time and someone-else is
+    // is trying to access stealing the token
+    const user = await User.findById(decoded.id);
+    if (!user) {
+        return next(new AppError("The User donot exist.", 401));
+    }
+
+    // [4] Check if user changed password after the token was issued
+    if (user.changedPasswordAfter(decoded.iat)) {
+        return next(AppError("Password changed! Please log in again!", 401));
+    }
+
+    req.user = user;
+
+    next();
 });

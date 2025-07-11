@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ["user", "guide", "lead-guide", "admin"],
-        defalut: "user",
+        default: "user",
     },
     password: {
         type: String,
@@ -80,15 +80,30 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
+// runs after Model.prototype.save() and Model.create()
+userSchema.post("save", function (doc, next) {
+    doc.password = undefined;
+    doc.__v = undefined;
+    next();
+});
+
 ////////////////////////////////////////
 // Instance Method /////////////////////
 // These Methods will be availabe for all the Documents
 
-userSchema.methods.varifyPassword = async function (
-    rawPassord,
-    hashedPassword,
-) {
-    return await bcrypt.compare(rawPassord, hashedPassword);
+userSchema.methods.verifyPassword = async function (rawPass, hashedPass) {
+    return await bcrypt.compare(rawPass, hashedPass);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+    if (this.passwordChangedAt) {
+        const changedTimeStamp = parseInt(
+            this.passwordChangedAt.getTime() / 1000,
+            10,
+        );
+        return JWTTimestamp < changedTimeStamp;
+    }
+    return false;
 };
 
 const User = mongoose.model("User", userSchema);
