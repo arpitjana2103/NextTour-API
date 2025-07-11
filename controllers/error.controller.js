@@ -22,7 +22,10 @@ exports.AppError = class extends Error {
 
 exports.catchAsyncErrors = function (asyncFunc) {
     return function (req, res, next) {
-        asyncFunc(req, res, next).catch(next);
+        asyncFunc(req, res, next).catch(function (err) {
+            console.log("[Caught Async Error]", err);
+            return next(err);
+        });
     };
 };
 
@@ -67,6 +70,10 @@ function sendErrForProd(err, res) {
     // Exmple : Fail schema validation
     err = handleValidationError(err);
 
+    // Handle JWT Error
+    // Exmple : Token Expires, Invalid JWT
+    err = handleJWTErrors(err);
+
     if (err.isOperational) {
         return res.status(err.statusCode).json({
             status: err.status,
@@ -103,5 +110,20 @@ function handleValidationError(err) {
         const { message } = err;
         return new exports.AppError(message, 400);
     }
+    return err;
+}
+
+function handleJWTErrors(err) {
+    // Invalid JWT
+    if (err.name === "JsonWebTokenError") {
+        message = "Invalid Token Found, Login again to get new token !";
+        return new exports.AppError(message, 401);
+    }
+    // Token Expired
+    if (err.name === "TokenExpiredError") {
+        message = "Token has been Expired, Login agian to get new token !";
+        return new exports.AppError(message, 401);
+    }
+
     return err;
 }

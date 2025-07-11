@@ -36,6 +36,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "##-User-Must-Have-A-Password-##"],
+        // Will not work while update..
+        // Only work while creating new Docs..
         validate: {
             validator: validatePassword,
             message:
@@ -77,6 +79,17 @@ userSchema.pre("save", async function (next) {
     this.passwordConfirm = undefined;
     next();
 });
+
+////////////////////////////////////////
+// Instance Method /////////////////////
+// These Methods will be availabe for all the Documents
+
+userSchema.methods.varifyPassword = async function (
+    rawPassord,
+    hashedPassword,
+) {
+    return await bcrypt.compare(rawPassord, hashedPassword);
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

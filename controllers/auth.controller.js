@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { catchAsyncErrors } = require("./error.controller");
+const { catchAsyncErrors, AppError } = require("./error.controller");
 const User = require("../models/user.model");
 
 const signToken = function (userId) {
