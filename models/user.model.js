@@ -83,6 +83,7 @@ userSchema.pre("save", async function (next) {
 // runs after Model.prototype.save() and Model.create()
 userSchema.post("save", function (doc, next) {
     doc.password = undefined;
+    doc.active = undefined;
     doc.__v = undefined;
     next();
 });

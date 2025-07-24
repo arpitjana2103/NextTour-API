@@ -54,7 +54,7 @@ exports.login = catchAsyncErrors(async function (req, res, next) {
     signAndSendToken(user, 200, res);
 });
 
-exports.protect = catchAsyncErrors(async function (req, res, next) {
+exports.authProtect = catchAsyncErrors(async function (req, res, next) {
     // [1] Getting the Token
     let token = req.headers.authorization;
     if (token && token.startsWith("Bearer")) {
@@ -85,3 +85,16 @@ exports.protect = catchAsyncErrors(async function (req, res, next) {
 
     next();
 });
+
+exports.authRestrict = function (...roles) {
+    return function (req, res, next) {
+        if (!roles.includes(req.user.roles))
+            return next(
+                new AppError(
+                    "You do not have permission to perform this action",
+                    403,
+                ),
+            );
+        next();
+    };
+};
